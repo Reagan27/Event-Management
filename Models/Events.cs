@@ -8,11 +8,11 @@ namespace Assessment.Models
     public class Events
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Location { get; set; }
-        public int Capacity { get; set; }
-        public double Price { get; set; }
+        public string Name { get; set; } = "New Event";
+        public string Description { get; set; } = "";
+        public string Location { get; set; } = "Nyeri";
+        public int Slots { get; set; } = 30;
+        public double Price { get; set; } = 1000;
         public DateTime EventDate { get; set; }
         // public List<Users> Users { get; set; }
         public List<Users> Users { get; set; } = new List<Users>();

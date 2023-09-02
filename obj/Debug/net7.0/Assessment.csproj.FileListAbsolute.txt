@@ -76,3 +76,5 @@ D:\Training\C# .NET Training\Week 5\Assessment\obj\Debug\net7.0\refint\Assessmen
 D:\Training\C# .NET Training\Week 5\Assessment\obj\Debug\net7.0\Assessment.pdb
 D:\Training\C# .NET Training\Week 5\Assessment\obj\Debug\net7.0\Assessment.genruntimeconfig.cache
 D:\Training\C# .NET Training\Week 5\Assessment\obj\Debug\net7.0\ref\Assessment.dll
+D:\Training\C# .NET Training\Week 5\Assessment\bin\Debug\net7.0\BCrypt.Net-Next.dll
+D:\Training\C# .NET Training\Week 5\Assessment\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

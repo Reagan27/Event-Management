@@ -21,6 +21,8 @@ namespace Assessment.Requests
         [MaxLength(50)]
         public string Location { get; set; } = "";
         [Required]
+        public int Slots { get; set; }
+        [Required]
         public double Price { get; set; }
         [Required]
         public DateTime EventDate { get; set; } = DateTime.Now;

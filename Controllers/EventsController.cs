@@ -3,6 +3,7 @@ using Assessment.Requests;
 using Assessment.Response;
 using Assessment.Services.IServices;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Assessment.Controllers
@@ -14,9 +15,6 @@ namespace Assessment.Controllers
         private readonly IMapper _mapper;
         private readonly IEventsService _eventService;
 
-        // event max slots
-        private const int maxSlots = 5;
-
         public EventsController(IMapper mapper, IEventsService eventService)
         {
             _mapper = mapper;
@@ -25,44 +23,54 @@ namespace Assessment.Controllers
 
         // creating an event
         [HttpPost]
-        public async Task<IActionResult> CreateEvent(AddEvent addEvent)
+        [Authorize]
+        public async Task<ActionResult<string>> CreateEvent(AddEvent addEvent)
         {
-            try
+            var role = User.Claims.FirstOrDefault(x => x.Type == "Role").Value;
+            if (!string.IsNullOrWhiteSpace(role) && role == "Admin")
             {
-                var events = _mapper.Map<Events>(addEvent);
-                var response = await _eventService.CreateEventAsync(events);
-                return CreatedAtAction(nameof(CreateEvent), new UserSuccess(response, 201));
+                var res = await _eventService.CreateEventAsync(_mapper.Map<Events>(addEvent));
+                return CreatedAtAction(nameof(CreateEvent), new UserSuccess(res, 201));
             }
-            catch (Exception)
-            {
-                return BadRequest("Error creating event");
-            }
+            return BadRequest("You are not authorized");
         }
         // updating an event
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserSuccess>> UpdateEvent(int id, UpdateEvent updateEvent)
         {
-            var existingEvent = await _eventService.GetEventByIdAsync(id);
-            if (existingEvent == null)
+            var role = User.Claims.FirstOrDefault(x => x.Type == "Role").Value;
+            if (!string.IsNullOrWhiteSpace(role) && role == "Admin")
             {
-                return NotFound(new UserSuccess("Event not found", 404));
+                var existingEvent = await _eventService.GetEventByIdAsync(id);
+                if (existingEvent == null)
+                {
+                    return NotFound(new UserSuccess("Event not found", 404));
+                }
+                var updatedEvent = _mapper.Map<Events>(updateEvent);
+                var response = await _eventService.UpdateEventAsync(updatedEvent);
+                return Ok(new UserSuccess(response, 200));
             }
-            var updatedEvent = _mapper.Map<Events>(updateEvent);
-            var response = await _eventService.UpdateEventAsync(updatedEvent);
-            return Ok(new UserSuccess(response, 200));
+            return BadRequest("You are not authorized");
         }
 
         // deleting an event
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult<UserSuccess>> DeleteEvent(int id)
         {
-            var existingEvent = await _eventService.GetEventByIdAsync(id);
-            if (existingEvent == null)
+            var role = User.Claims.FirstOrDefault(x => x.Type == "Role").Value;
+            if (!string.IsNullOrWhiteSpace(role) && role == "Admin")
             {
-                return NotFound(new UserSuccess("Event not found", 404));
+                var existingEvent = await _eventService.GetEventByIdAsync(id);
+                if (existingEvent == null)
+                {
+                    return NotFound(new UserSuccess("Event not found", 404));
+                }
+                var response = await _eventService.DeleteEventAsync(id);
+                return Ok(new UserSuccess(response, 200));
             }
-            var response = await _eventService.DeleteEventAsync(id);
-            return Ok(new UserSuccess(response, 200));
+            return BadRequest("You are not authorized");
         }
         // getting all events and filtering by location
         [HttpGet]

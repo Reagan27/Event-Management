@@ -12,7 +12,7 @@ namespace Assessment.Requests
         [Required]
         [MinLength(3)]
         [MaxLength(50)]
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = "New Event";
         [Required]
         [MinLength(3)]
         [MaxLength(500)]
@@ -20,10 +20,13 @@ namespace Assessment.Requests
         [Required]
         [MinLength(3)]
         [MaxLength(50)]
-        public string Location { get; set; } = "";
+        public string Location { get; set; } = "Nyeri";
         [Required]
         [Range(1, 100000)]
-        public double Price { get; set; }
+        public int Slots { get; set; } = 30;
+        [Required]
+        [Range(1, 100000)]
+        public double Price { get; set; } = 1000;
         [Required]
         public DateTime EventDate { get; set; } = DateTime.Now;
     }

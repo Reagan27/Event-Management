@@ -1,6 +1,7 @@
 using Assessment.Context;
 using Assessment.Services;
 using Assessment.Services.IServices;
+using Auth.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,11 @@ builder.Services.AddScoped<IEventsService, EventsService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // authentication
-// builder.AddAppAuthentication();
+builder.AddAppAuthentication();
+
+// authorization
+builder.addAuthorizationExtension();
+builder.AddSwaggenGenExtension();
 
 var app = builder.Build();
 
@@ -37,9 +42,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+app.ApplyMigration();
 
 app.Run();

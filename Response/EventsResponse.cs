@@ -6,7 +6,7 @@ namespace Assessment.Response
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public string Location { get; set; } = "";
-        public int Capacity { get; set; }
+        public int Slots { get; set; }
         public double Price { get; set; }
         public DateTime EventDate { get; set; } = DateTime.Now;
     }

@@ -13,7 +13,7 @@ namespace Assessment.Services
     public class EventsService : IEventsService
     {
         private readonly AppDbContext _context;
-        private const int maxSlots = 10;
+        // private const int maxSlots = 10;
         public EventsService(AppDbContext context)
         {
             _context = context;
@@ -73,11 +73,10 @@ namespace Assessment.Services
 
             if (event2 == null)
             {
-                // Handle event not found
-                return -1; // or throw an exception
+                return -1;
             }
 
-            int availableSlots = maxSlots - event2.Users.Count;
+            int availableSlots = event2.Slots - event2.Users.Count;
 
             return availableSlots < 0 ? 0 : availableSlots;
         }

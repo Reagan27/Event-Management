@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Assessment.Models;
@@ -8,6 +10,7 @@ using Assessment.Requests;
 using Assessment.Response;
 using Assessment.Services.IServices;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,13 +22,13 @@ namespace Assessment.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IUserService _usersService;
-
         private readonly IConfiguration _configuration;
 
-        public UserController(IMapper mapper, IUserService usersService)
+        public UserController(IMapper mapper, IUserService usersService, IConfiguration configuration)
         {
             _mapper = mapper;
             _usersService = usersService;
+            _configuration = configuration;
         }
 
         // add a user - register
@@ -35,7 +38,8 @@ namespace Assessment.Controllers
             try
             {
                 var users = _mapper.Map<Users>(addUser);
-                users.Role = "Admin";
+                users.Password = BCrypt.Net.BCrypt.HashPassword(addUser.Password);
+                // users.Role = "Admin";
                 var response = await _usersService.AddUserAsync(users);
                 return CreatedAtAction(nameof(AddUser), new UserSuccess(response, 201));
             }
@@ -47,31 +51,53 @@ namespace Assessment.Controllers
 
         // login a user
         [HttpPost("login")]
-        public async Task<ActionResult<UserSuccess>> LoginUser(LoginUser loginUser)
+        public async Task<ActionResult<string>> LoginUser(LoginUser loginUser)
         {
             // check if user exists using email
-            var user = await _usersService.GetUserByEmailAsync(loginUser.Email);
-            if (user == null)
+            var client = await _usersService.GetUserByEmailAsync(loginUser.Email);
+            if (client == null)
             {
-                return NotFound(new UserSuccess("User not found", 404));
+                return NotFound("Incorrect Credentials");
             }
             // check if password is correct
-            var password = BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password);
+            var password = BCrypt.Net.BCrypt.Verify(loginUser.Password, client.Password);
             if (!password)
             {
-                return BadRequest(new UserSuccess("Invalid Credentials", 400));
+                return NotFound("Incorrect Credentials");
             }
             // generate token
-            // var token = CreateToken(user);
-            // return Ok(new UserSuccess(token, 200));
-            return Ok();
+            var token = CreateToken(client);
+            return Ok(token);
+            // return Ok();
         }
 
         // create token
-        // private string CreateToken(Users user)
-        // {
-        //     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("TokenSecirity: SecretKey")));
-        // }
+        private string CreateToken(Users user)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("TokenSecurity:SecretKey")));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            // payload data
+            List<Claim> claims = new List<Claim>();
+            claims.Add(new Claim("Sub", user.Id.ToString()));
+            claims.Add(new Claim("Email", user.Email));
+            claims.Add(new Claim("Role", user.Role));
+            claims.Add(new Claim("Name", user.Name));
+
+            // create token
+            var token = new JwtSecurityToken(
+                _configuration["TokenSecurity:Issuer"],
+                _configuration["TokenSecurity:Audience"],
+                signingCredentials: creds,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2)
+            );
+
+            // return token
+            var verifiedToken = new JwtSecurityTokenHandler().WriteToken(token);
+            return verifiedToken;
+
+        }
         // update a user
         [HttpPut("{id}")]
         public async Task<ActionResult<UserSuccess>> UpdateUser(int id, AddUSer updateUser)
@@ -143,7 +169,7 @@ namespace Assessment.Controllers
             }
             catch (Exception)
             {
-                return BadRequest(new UserSuccess("Error registering for event", 400));
+                return NotFound(" Error registering for event");
             }
         }
     }

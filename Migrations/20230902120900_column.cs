@@ -5,25 +5,24 @@
 namespace Assessment.Migrations
 {
     /// <inheritdoc />
-    public partial class third : Migration
+    public partial class column : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "UsersId",
-                table: "Events");
+            migrationBuilder.RenameColumn(
+                name: "Capacity",
+                table: "Events",
+                newName: "Slots");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "UsersId",
+            migrationBuilder.RenameColumn(
+                name: "Slots",
                 table: "Events",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+                newName: "Capacity");
         }
     }
 }
