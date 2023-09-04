@@ -39,7 +39,7 @@ namespace Assessment.Controllers
             {
                 var users = _mapper.Map<Users>(addUser);
                 users.Password = BCrypt.Net.BCrypt.HashPassword(addUser.Password);
-                // users.Role = "Admin";
+                //users.Role = "Admin";
                 var response = await _usersService.AddUserAsync(users);
                 return CreatedAtAction(nameof(AddUser), new UserSuccess(response, 201));
             }

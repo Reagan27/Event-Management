@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Context",
+    "\\Controllers",
+    "\\Extensions",
+    "\\Migrations",
+    "\\Models",
+    "\\obj",
+    "\\Profiles",
+    "\\Properties",
+    "\\Requests"
+  ],
+  "SelectedNode": "\\Program.cs",
+  "PreviewInSolutionExplorer": false
+}

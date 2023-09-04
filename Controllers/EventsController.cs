@@ -23,7 +23,7 @@ namespace Assessment.Controllers
 
         // creating an event
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<string>> CreateEvent(AddEvent addEvent)
         {
             var role = User.Claims.FirstOrDefault(x => x.Type == "Role").Value;
